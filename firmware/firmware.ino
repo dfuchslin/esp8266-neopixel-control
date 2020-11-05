@@ -10,7 +10,7 @@
 
 
 #define LED_PIN D1
-#define LED_COUNT 3
+#define LED_COUNT 5
 
 ESP8266WebServer server(80);
 Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_RGB + NEO_KHZ800);
@@ -101,6 +101,7 @@ void setPixelBrightness(int newBrightness) {
   Serial.print(is_on ? "yes" : "no");
   Serial.print(" brightness: ");
   Serial.print(brightness);
+  setPixelColorFromBrightness();
 }
 
 void setPixelColorFromBrightness() {
