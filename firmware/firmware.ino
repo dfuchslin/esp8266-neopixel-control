@@ -10,7 +10,7 @@
 
 
 #define LED_PIN D1
-#define LED_COUNT 5
+#define LED_COUNT 15
 
 ESP8266WebServer server(80);
 Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_RGB + NEO_KHZ800);
