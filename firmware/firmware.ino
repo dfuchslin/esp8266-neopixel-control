@@ -11,7 +11,9 @@
 
 #define LED_PIN D1
 #define LED_COUNT 15
+#define RELAY_PIN D2
 
+WiFiManager wifiManager;
 ESP8266WebServer server(80);
 Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_RGB + NEO_KHZ800);
 
@@ -56,10 +58,15 @@ void set_brightness() {
   get_brightness();
 }
 
+void reset() {
+  server.send(200, "text/plain", "All network settings reset. Please reboot and reconfigure.");
+  wifiManager.resetSettings();
+}
+
 void routing() {
     server.on("/", HTTP_GET, []() {
-        server.send(200, F("text/html"),
-            F("Welcome to the REST Web Server"));
+        server.send(200, F("text/plain"),
+            F("Neopixel network controller"));
     });
     server.on(F("/health"), HTTP_GET, health);
     server.on(F("/metrics"), HTTP_GET, metrics);
@@ -68,6 +75,7 @@ void routing() {
     server.on(F("/status"), HTTP_GET, status);
     server.on(F("/brightness"), HTTP_GET, get_brightness);
     server.on(UriBraces("/brightness/{}"), HTTP_GET, set_brightness);
+    server.on(F("/reset"), HTTP_DELETE, reset);
 }
 
 void handleNotFound() {
@@ -90,6 +98,11 @@ void setupPixels() {
   strip.show();
 }
 
+void setupRelay() {
+  pinMode(RELAY_PIN, OUTPUT);
+  digitalWrite(RELAY_PIN, LOW);
+}
+
 void setPixelBrightness(int newBrightness) {
   if (brightness != newBrightness) {
     brightness = newBrightness;
@@ -104,12 +117,23 @@ void setPixelBrightness(int newBrightness) {
   setPixelColorFromBrightness();
 }
 
+void power_relay_on() {
+  digitalWrite(RELAY_PIN, HIGH);
+}
+
+void power_relay_off() {
+  digitalWrite(RELAY_PIN, LOW);
+}
+
 void setPixelColorFromBrightness() {
   int color = 0;
   if (is_on) {
     color = int(float(brightness) / 100.0 * 255.0);
     if (color > 255) color = 255;
     if (color < 0) color = 0;
+    power_relay_on();
+  } else {
+    power_relay_off();
   }
   Serial.print(" color: ");
   Serial.println(color);
@@ -120,7 +144,7 @@ void setPixelColorFromBrightness() {
 void setup(void) {
   Serial.begin(115200);
 
-  WiFiManager wifiManager;
+  WiFi.mode(WIFI_STA);
   wifiManager.setHostname(hostname);
   wifiManager.autoConnect();
 
@@ -138,6 +162,7 @@ void setup(void) {
   MDNS.addService("http", "tcp", 80);
 
   setupPixels();
+  setupRelay();
 }
  
 void loop(void) {
