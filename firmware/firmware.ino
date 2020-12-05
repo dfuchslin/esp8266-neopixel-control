@@ -10,7 +10,7 @@
 
 
 #define LED_PIN D1
-#define LED_COUNT 15
+#define LED_COUNT 60
 #define RELAY_PIN D2
 
 WiFiManager wifiManager;
