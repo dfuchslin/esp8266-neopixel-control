@@ -6,7 +6,7 @@ TTY = /dev/cu.SLAB_USBtoUART
 CC = arduino-cli
 
 compile: 
-	$(CC) compile --verbose --fqbn $(FQBN)
+	$(CC) compile --verbose --fqbn $(FQBN) --export-binaries
 
 flash: 
 	$(CC) upload -p $(PORT) --fqbn $(FQBN) `pwd`

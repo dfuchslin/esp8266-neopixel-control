@@ -2,6 +2,7 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
+#include <ESP8266HTTPUpdateServer.h>
 #include <ESP8266mDNS.h>
 #include <WiFiManager.h>
 #include <Adafruit_NeoPixel.h>
@@ -15,6 +16,7 @@
 
 WiFiManager wifiManager;
 ESP8266WebServer server(80);
+ESP8266HTTPUpdateServer updater;
 Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_RGB + NEO_KHZ800);
 
 const char* hostname = "neopixel-control";
@@ -147,15 +149,13 @@ void setup(void) {
   WiFi.mode(WIFI_STA);
   wifiManager.setHostname(hostname);
   wifiManager.autoConnect();
-
-  Serial.print("IP address: ");
-  Serial.print("Hostname: ");
  
   if (MDNS.begin(hostname)) {
   }
 
   routing();
   server.onNotFound(handleNotFound);
+  updater.setup(&server);
   server.begin();
   
 
