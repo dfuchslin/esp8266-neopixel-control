@@ -4,12 +4,16 @@ FQBN = $(BOARD):led=2,baud=$(BAUD)
 PORT = /dev/cu.SLAB_USBtoUART
 TTY = /dev/cu.SLAB_USBtoUART
 CC = arduino-cli
+HOSTNAME = neopixel-control.local
 
 compile: 
 	$(CC) compile --verbose --fqbn $(FQBN) --export-binaries
 
 flash: 
 	$(CC) upload -p $(PORT) --fqbn $(FQBN) `pwd`
+
+upload:
+	curl http://$(HOSTNAME)/update -F "name=firmware" -F "image=@build/esp8266.esp8266.nodemcuv2/firmware.ino.bin"
 
 serial:
 	@echo "Type ~. to exit"
