@@ -9,9 +9,12 @@
 
 #include <uri/UriBraces.h>
 
+// D1=GPIO5
+// D2=GPIO4
 #define LED_PIN D1
 #define LED_COUNT 60
 #define RELAY_PIN D2
+#define REFRESH_INTERVAL_MS 1000
 
 typedef struct status
 {
@@ -24,8 +27,9 @@ ESP8266WebServer server(80);
 ESP8266HTTPUpdateServer updater;
 Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_RGB + NEO_KHZ800);
 
-Status previousStatus = {false, 0};
 Status currentStatus = {false, 0};
+
+unsigned long lastRefreshTime = 0;
 
 const char *hostname = "neopixel-control";
 
@@ -166,8 +170,6 @@ void updateStatus(Status newStatus)
   if (!currentStatus.on && newStatus.on)
   {
     power_relay_on();
-    // hack: pause to allow all networked light modules to startup & stabilize
-    delay(2000);
   }
 
   if (currentStatus.on && !newStatus.on)
@@ -179,7 +181,6 @@ void updateStatus(Status newStatus)
     setPixelColorFromBrightness(newStatus.brightness);
   }
 
-  previousStatus = currentStatus;
   currentStatus = newStatus;
 }
 
@@ -235,4 +236,11 @@ void loop(void)
 {
   MDNS.update();
   server.handleClient();
+
+  unsigned long currentTime = millis();
+  if (currentTime - lastRefreshTime >= REFRESH_INTERVAL_MS)
+  {
+    lastRefreshTime = currentTime;
+    updateStatus(currentStatus);
+  }
 }

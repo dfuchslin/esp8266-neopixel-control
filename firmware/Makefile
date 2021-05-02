@@ -1,8 +1,10 @@
 BOARD = esp8266:esp8266:nodemcuv2
 BAUD = 115200
 FQBN = $(BOARD):led=2,baud=$(BAUD)
-PORT = /dev/cu.SLAB_USBtoUART
-TTY = /dev/cu.SLAB_USBtoUART
+#PORT = /dev/cu.SLAB_USBtoUART
+#TTY = /dev/cu.SLAB_USBtoUART
+PORT = /dev/cu.usbserial-0001
+TTY = /dev/cu.usbserial-0001
 CC = arduino-cli
 HOSTNAME = neopixel-control.local
 
